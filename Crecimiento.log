@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Definimos la función del modelo logístico
+def logistic_growth(t, P, r, K):
+    return r * P * (1 - P / K)
+
+# Método de Runge-Kutta de 4to orden
+def runge_kutta_logistic(P0, r, K, t0, tf, h):
+    n_steps = int((tf - t0) / h)
+    t = np.linspace(t0, tf, n_steps)
+    P = np.zeros(n_steps)
+    P[0] = P0
+
+    for i in range(1, n_steps):
+        k1 = h * logistic_growth(t[i-1], P[i-1], r, K)
+        k2 = h * logistic_growth(t[i-1] + 0.5*h, P[i-1] + 0.5*k1, r, K)
+        k3 = h * logistic_growth(t[i-1] + 0.5*h, P[i-1] + 0.5*k2, r, K)
+        k4 = h * logistic_growth(t[i-1] + h, P[i-1] + k3, r, K)
+        
+        P[i] = P[i-1] + (k1 + 2*k2 + 2*k3 + k4) / 6
+    
+    return t, P
+
+# Parámetros del modelo
+P0 = 10    # Población inicial
+r = 0.5    # Tasa de crecimiento
+K = 100    # Capacidad de carga
+t0 = 0     # Tiempo inicial
+tf = 20    # Tiempo final
+h = 0.1    # Paso temporal
+
+# Resolver la EDO
+t, P = runge_kutta_logistic(P0, r, K, t0, tf, h)
+
+# Graficar los resultados
+plt.plot(t, P, label="Población (P)")
+plt.title("Crecimiento Logístico")
+plt.xlabel("Tiempo (t)")
+plt.ylabel("Población (P)")
+plt.grid(True)
+plt.legend()
+plt.show()
